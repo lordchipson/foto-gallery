@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КАДР — Фотогалерея</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #111010;
+    --surface: #1a1918;
+    --text: #e8e2d9;
+    --text-muted: #7a7370;
+    --accent: #c8a96e;
+    --accent-dim: rgba(200,169,110,0.15);
+    --polaroid-bg: #f5f0e8;
+    --filter-bg: #231f1e;
+    --filter-active: #c8a96e;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(17,16,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(16px, 4vw, 56px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    letter-spacing: .08em;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .logo span {
+    font-size: .7rem;
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    letter-spacing: .25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: clamp(40px, 8vw, 80px) clamp(16px, 4vw, 56px) 0;
+    max-width: 600px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    font-weight: 400;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero p {
+    margin-top: 14px;
+    font-size: .9rem;
+    letter-spacing: .05em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-section {
+    padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 0;
+  }
+
+  .filter-group {
+    margin-bottom: 14px;
+  }
+
+  .filter-group-label {
+    font-size: .65rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .filter-group-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 5px 14px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: var(--filter-bg);
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
+    font-size: .78rem;
+    font-weight: 400;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: all .2s ease;
+    white-space: nowrap;
+  }
+  .pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pill.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pill.all-pill {
+    border-color: rgba(255,255,255,0.15);
+  }
+  .pill.all-pill.active {
+    background: var(--accent);
+    color: #111;
+  }
+
+  /* ── GALLERY ── */
+  .gallery-wrap {
+    padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 60px;
+  }
+
+  .count-bar {
+    font-size: .72rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .count-bar strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .grid {
+    columns: 3 280px;
+    column-gap: 24px;
+  }
+
+  /* ── POLAROID ── */
+  .polaroid-wrap {
+    break-inside: avoid;
+    margin-bottom: 24px;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .polaroid {
+    background: var(--polaroid-bg);
+    padding: 10px 10px 36px;
+    box-shadow:
+      0 4px 8px rgba(0,0,0,.5),
+      0 12px 32px rgba(0,0,0,.45),
+      0 1px 2px rgba(255,255,255,.04) inset;
+    cursor: pointer;
+    transition: transform .3s cubic-bezier(.22,.68,0,1.2), box-shadow .3s ease;
+    will-change: transform;
+    position: relative;
+  }
+
+  /* subtle random rotation via CSS custom props set in JS */
+  .polaroid { transform: rotate(var(--rot, 0deg)); }
+  .polaroid:hover {
+    transform: rotate(0deg) scale(1.03);
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.6),
+      0 24px 56px rgba(0,0,0,.5);
+    z-index: 2;
+  }
+
+  .polaroid img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    filter: sepia(8%) contrast(1.04);
+  }
+
+  .polaroid-caption {
+    margin-top: 8px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: .82rem;
+    color: #555;
+    text-align: center;
+    letter-spacing: .03em;
+  }
+
+  /* category badge */
+  .badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+    color: rgba(255,255,255,.75);
+    font-size: .6rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* hidden state */
+  .polaroid-wrap.hidden {
+    display: none;
+  }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(10,9,9,.92);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    padding: 20px;
+  }
+  .lightbox.open {
+    display: flex;
+    animation: lbIn .25s ease;
+  }
+  @keyframes lbIn {
+    from { opacity:0; }
+    to { opacity:1; }
+  }
+
+  .lightbox-inner {
+    position: relative;
+    max-width: min(90vw, 1000px);
+    cursor: default;
+    animation: lbSlide .3s cubic-bezier(.22,.68,0,1.1);
+  }
+  @keyframes lbSlide {
+    from { transform: scale(.9) translateY(20px); opacity:0; }
+    to   { transform: scale(1) translateY(0);     opacity:1; }
+  }
+
+  .lightbox-polaroid {
+    background: var(--polaroid-bg);
+    padding: 12px 12px 52px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.9);
+  }
+
+  .lightbox-polaroid img {
+    width: 100%;
+    display: block;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+
+  .lightbox-polaroid .lb-caption {
+    text-align: center;
+    margin-top: 12px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: #444;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: color .2s;
+    line-height: 1;
+  }
+  .lightbox-close:hover { color: var(--text); }
+
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,.08);
+    border: none;
+    color: var(--text);
+    font-size: 1.6rem;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+  }
+  .lb-nav:hover { background: rgba(255,255,255,.18); }
+  .lb-prev { left: -56px; }
+  .lb-next { right: -56px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    display: none;
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-muted);
+  }
+  .empty.show { display: block; }
+  .empty .icon { font-size: 3rem; margin-bottom: 12px; opacity:.3; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 680px) {
+    .grid { columns: 2 160px; column-gap: 14px; }
+    .polaroid-wrap { margin-bottom: 14px; }
+    .lb-prev { left: -12px; top: auto; bottom: -48px; transform: none; }
+    .lb-next { right: -12px; top: auto; bottom: -48px; transform: none; }
+  }
+  @media (max-width: 400px) {
+    .grid { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">КАДР <span>фотогалерея</span></a>
+</header>
+
+<section class="hero">
+  <h1>Мир глазами<br><em>объектива</em></h1>
+  <p>Городские сцены &amp; Природа</p>
+</section>
+
+<section class="filter-section">
+  <div class="filter-pills" style="margin-bottom:18px">
+    <button class="pill all-pill active" data-filter="all">Все фото</button>
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-group-label">Город</div>
+    <div class="filter-pills">
+      <button class="pill" data-filter="architecture">Архитектура</button>
+      <button class="pill" data-filter="roads">Дороги</button>
+      <button class="pill" data-filter="transport">Транспорт</button>
+      <button class="pill" data-filter="courtyards">Дворы / Парадные</button>
+      <button class="pill" data-filter="people">Люди на улицах</button>
+      <button class="pill" data-filter="signs">Вывески и детали</button>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-group-label">Природа</div>
+    <div class="filter-pills">
+      <button class="pill" data-filter="mountains">Горы</button>
+      <button class="pill" data-filter="water">Водоёмы</button>
+      <button class="pill" data-filter="forest">Леса и поля</button>
+      <button class="pill" data-filter="sunsets">Закаты и рассветы</button>
+      <button class="pill" data-filter="animals">Животные</button>
+      <button class="pill" data-filter="plants">Растения крупно</button>
+    </div>
+  </div>
+</section>
+
+<div class="gallery-wrap">
+  <div class="count-bar">Показано: <strong id="count">0</strong> фото</div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">
+    <div class="icon">⬜</div>
+    Нет фотографий в этой категории
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lbClose">✕</button>
+    <button class="lb-nav lb-prev" id="lbPrev">‹</button>
+    <button class="lb-nav lb-next" id="lbNext">›</button>
+    <div class="lightbox-polaroid">
+      <img id="lbImg" src="" alt="">
+      <div class="lb-caption" id="lbCaption"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const photos = [
+  // ГОРОД — Архитектура
+  { id:1,  cat:'architecture', label:'Архитектура',    caption:'Старые своды',          src:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80' },
+  { id:2,  cat:'architecture', label:'Архитектура',    caption:'Фасад XIX века',         src:'https://images.unsplash.com/photo-1601600576337-c1d8a0d1373c?w=800&q=80' },
+  { id:3,  cat:'architecture', label:'Архитектура',    caption:'Колоннада',              src:'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&q=80' },
+  { id:4,  cat:'architecture', label:'Архитектура',    caption:'Modernism',              src:'https://images.unsplash.com/photo-1510454972008-2aab492c01bd?w=800&q=80' },
+
+  // ГОРОД — Дороги
+  { id:5,  cat:'roads',        label:'Дороги',         caption:'Ночное шоссе',           src:'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80' },
+  { id:6,  cat:'roads',        label:'Дороги',         caption:'Брусчатка',              src:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80' },
+  { id:7,  cat:'roads',        label:'Дороги',         caption:'Перекрёсток',            src:'https://images.unsplash.com/photo-1490696275944-6eb4ff094f3d?w=800&q=80' },
+
+  // ГОРОД — Транспорт
+  { id:8,  cat:'transport',    label:'Транспорт',      caption:'Трамвай',                src:'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80' },
+  { id:9,  cat:'transport',    label:'Транспорт',      caption:'Метро',                  src:'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80' },
+  { id:10, cat:'transport',    label:'Транспорт',      caption:'Велосипеды у стены',     src:'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80' },
+
+  // ГОРОД — Дворы / Парадные
+  { id:11, cat:'courtyards',   label:'Дворы / Парадные', caption:'Тихий двор',           src:'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80' },
+  { id:12, cat:'courtyards',   label:'Дворы / Парадные', caption:'Лестница',             src:'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&q=80' },
+  { id:13, cat:'courtyards',   label:'Дворы / Парадные', caption:'Арка',                 src:'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80' },
+
+  // ГОРОД — Люди
+  { id:14, cat:'people',       label:'Люди на улицах', caption:'Прохожие',               src:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80' },
+  { id:15, cat:'people',       label:'Люди на улицах', caption:'Уличная сцена',          src:'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80' },
+  { id:16, cat:'people',       label:'Люди на улицах', caption:'Рынок',                  src:'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&q=80' },
+
+  // ГОРОД — Вывески
+  { id:17, cat:'signs',        label:'Вывески и детали', caption:'Неон',                 src:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  { id:18, cat:'signs',        label:'Вывески и детали', caption:'Детали фасада',        src:'https://images.unsplash.com/photo-1541232222265-43a64bba10c4?w=800&q=80' },
+  { id:19, cat:'signs',        label:'Вывески и детали', caption:'Старая вывеска',       src:'https://images.unsplash.com/photo-1570989827083-62e8e24ea08a?w=800&q=80' },
+
+  // ПРИРОДА — Горы
+  { id:20, cat:'mountains',    label:'Горы',           caption:'Вершина',                src:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80' },
+  { id:21, cat:'mountains',    label:'Горы',           caption:'Туман в горах',          src:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80' },
+  { id:22, cat:'mountains',    label:'Горы',           caption:'Горная дорога',          src:'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80' },
+
+  // ПРИРОДА — Водоёмы
+  { id:23, cat:'water',        label:'Водоёмы',        caption:'Отражение',              src:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80' },
+  { id:24, cat:'water',        label:'Водоёмы',        caption:'Река',                   src:'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80' },
+  { id:25, cat:'water',        label:'Водоёмы',        caption:'Озеро',                  src:'https://images.unsplash.com/photo-1439853949212-36db5d22c0e0?w=800&q=80' },
+  { id:26, cat:'water',        label:'Водоёмы',        caption:'Водопад',                src:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80' },
+
+  // ПРИРОДА — Леса и поля
+  { id:27, cat:'forest',       label:'Леса и поля',    caption:'Рассвет в лесу',         src:'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80' },
+  { id:28, cat:'forest',       label:'Леса и поля',    caption:'Поле пшеницы',           src:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80' },
+  { id:29, cat:'forest',       label:'Леса и поля',    caption:'Берёзовая роща',         src:'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80' },
+
+  // ПРИРОДА — Закаты
+  { id:30, cat:'sunsets',      label:'Закаты и рассветы', caption:'Золотой час',         src:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80' },
+  { id:31, cat:'sunsets',      label:'Закаты и рассветы', caption:'Рассвет',             src:'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80' },
+  { id:32, cat:'sunsets',      label:'Закаты и рассветы', caption:'Вечернее небо',       src:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80' },
+
+  // ПРИРОДА — Животные
+  { id:33, cat:'animals',      label:'Животные',       caption:'Портрет',                src:'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=800&q=80' },
+  { id:34, cat:'animals',      label:'Животные',       caption:'Птица',                  src:'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800&q=80' },
+  { id:35, cat:'animals',      label:'Животные',       caption:'Дикая природа',          src:'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&q=80' },
+
+  // ПРИРОДА — Растения
+  { id:36, cat:'plants',       label:'Растения',       caption:'Макро',                  src:'https://images.unsplash.com/photo-1490750967868-88df5691cc89?w=800&q=80' },
+  { id:37, cat:'plants',       label:'Растения',       caption:'Роса',                   src:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80' },
+  { id:38, cat:'plants',       label:'Растения',       caption:'Цветение',               src:'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=800&q=80' },
+];
+
+const ROTATIONS = [-2.4, -1.2, 0.6, 1.8, -0.8, 2.1, -1.6, 0.4, -2.0, 1.4];
+
+let currentFilter = 'all';
+let visiblePhotos = [];
+let lbIndex = 0;
+
+const grid = document.getElementById('grid');
+const countEl = document.getElementById('count');
+const emptyEl = document.getElementById('empty');
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lbImg');
+const lbCap = document.getElementById('lbCaption');
+
+function buildGrid() {
+  grid.innerHTML = '';
+  visiblePhotos = currentFilter === 'all' ? photos : photos.filter(p => p.cat === currentFilter);
+
+  countEl.textContent = visiblePhotos.length;
+  emptyEl.classList.toggle('show', visiblePhotos.length === 0);
+
+  visiblePhotos.forEach((photo, idx) => {
+    const rot = ROTATIONS[idx % ROTATIONS.length];
+    const wrap = document.createElement('div');
+    wrap.className = 'polaroid-wrap';
+
+    wrap.innerHTML = `
+      <div class="polaroid" style="--rot:${rot}deg" data-index="${idx}">
+        <span class="badge">${photo.label}</span>
+        <img src="${photo.src}" alt="${photo.caption}" loading="lazy">
+        <div class="polaroid-caption">${photo.caption}</div>
+      </div>`;
+
+    wrap.querySelector('.polaroid').addEventListener('click', () => openLightbox(idx));
+    grid.appendChild(wrap);
+  });
+}
+
+// Filters
+document.querySelectorAll('.pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    buildGrid();
+  });
+});
+
+// Lightbox
+function openLightbox(idx) {
+  lbIndex = idx;
+  updateLightbox();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateLightbox() {
+  const p = visiblePhotos[lbIndex];
+  lbImg.src = p.src;
+  lbCap.textContent = p.caption;
+}
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+document.getElementById('lbPrev').addEventListener('click', e => {
+  e.stopPropagation();
+  lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length;
+  updateLightbox();
+});
+
+document.getElementById('lbNext').addEventListener('click', e => {
+  e.stopPropagation();
+  lbIndex = (lbIndex + 1) % visiblePhotos.length;
+  updateLightbox();
+});
+
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') { lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length; updateLightbox(); }
+  if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % visiblePhotos.length; updateLightbox(); }
+});
+
+buildGrid();
+</script>
+</body>
+</html>
