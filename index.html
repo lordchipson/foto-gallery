@@ -89,6 +89,41 @@
     color: #111;
   }
 
+  /* ── QR-код ── */
+  .qr-section {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 12px;
+  }
+  .qr-section p {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    letter-spacing: .05em;
+  }
+  .qr-code {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+  @media (max-width: 680px) {
+    .qr-section {
+      max-width: 220px;
+      padding: 12px;
+    }
+    .qr-code {
+      width: 120px;
+    }
+  }
+
   /* ── HERO ── */
   .hero {
     padding: clamp(40px, 8vw, 80px) clamp(16px, 4vw, 56px) 0;
@@ -388,6 +423,11 @@
   <h1>Мир глазами<br><em>объектива</em></h1>
   <p>Городские сцены &amp; Природа</p>
 </section>
+
+<div class="qr-section">
+  <p>📱 Отсканируй QR-код, чтобы открыть бота на телефоне</p>
+  <img class="qr-code" src="https://i.ibb.co/spzBQ6bn/BDZWPg.png" alt="QR-код для загрузки фото в галерею">
+</div>
 
 <section class="filter-section">
   <div class="filter-pills" style="margin-bottom:18px">
