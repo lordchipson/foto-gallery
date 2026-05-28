@@ -15,7 +15,6 @@
     --accent-dim: rgba(200,169,110,0.15);
     --polaroid-bg: #f5f0e8;
     --filter-bg: #231f1e;
-    --filter-active: #c8a96e;
     --border: rgba(255,255,255,0.07);
   }
 
@@ -512,17 +511,13 @@
   </div>
 </div>
 
-<script>,
-  { id: 9503, cat: 'architecture', label: 'Архитектура', caption: 'Фото от @alyxdj', src: 'https://i.ibb.co/s93sbGRX/file-2.jpg' }const photos = [
-  { id: 5726, cat: 'architecture', label: 'Архитектура', caption: 'Фото от @alyxdj', src: 'https://i.ibb.co/0zTPyMT/file-2.jpg' }
-,
-  { id: 4480, cat: 'architecture', label: 'Архитектура', caption: 'Фото от @alyxdj', src: 'https://i.ibb.co/PvyyJGbT/file-3.jpg' },;
-
-const ROTATIONS = [-2.4, -1.2, 0.6, 1.8, -0.8, 2.1, -1.6, 0.4, -2.0, 1.4];
-
+<script>
+let photos = [];
 let currentFilter = 'all';
 let visiblePhotos = [];
 let lbIndex = 0;
+
+const ROTATIONS = [-2.4, -1.2, 0.6, 1.8, -0.8, 2.1, -1.6, 0.4, -2.0, 1.4];
 
 const grid = document.getElementById('grid');
 const countEl = document.getElementById('count');
@@ -604,7 +599,20 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % visiblePhotos.length; updateLightbox(); }
 });
 
-buildGrid();
+// Загружаем фото из photos.json
+async function loadPhotos() {
+  try {
+    const response = await fetch('photos.json');
+    photos = await response.json();
+    buildGrid();
+  } catch (error) {
+    console.error('Ошибка загрузки фото:', error);
+    photos = [];
+    buildGrid();
+  }
+}
+
+loadPhotos();
 
 const modal = document.getElementById('qrModal');
 const showBtn = document.getElementById('showQrBtn');
