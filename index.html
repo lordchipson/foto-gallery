@@ -29,7 +29,6 @@
     min-height: 100vh;
   }
 
-  /* ── HEADER ── */
   header {
     position: sticky;
     top: 0;
@@ -65,7 +64,6 @@
     text-transform: uppercase;
   }
 
-  /* ── КНОПКИ ── */
   .btn-group {
     display: flex;
     gap: 12px;
@@ -104,7 +102,6 @@
     color: #111;
   }
 
-  /* ── МОДАЛЬНОЕ ОКНО С QR ── */
   .modal {
     display: none;
     position: fixed;
@@ -155,7 +152,6 @@
     color: var(--accent);
   }
 
-  /* ── HERO ── */
   .hero {
     padding: clamp(40px, 8vw, 80px) clamp(16px, 4vw, 56px) 0;
     max-width: 600px;
@@ -178,7 +174,6 @@
     text-transform: uppercase;
   }
 
-  /* ── FILTER BAR ── */
   .filter-section {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 0;
   }
@@ -241,7 +236,6 @@
     color: #111;
   }
 
-  /* ── GALLERY ── */
   .gallery-wrap {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 60px;
   }
@@ -263,7 +257,6 @@
     column-gap: 24px;
   }
 
-  /* ── POLAROID ── */
   .polaroid-wrap {
     break-inside: avoid;
     margin-bottom: 24px;
@@ -510,58 +503,18 @@
   </div>
 </div>
 
-<!-- Модальное окно с QR-кодом -->
 <div class="modal" id="qrModal">
   <div class="modal-content">
     <button class="close-modal" id="closeModalBtn">✕</button>
     <p>📱 Отсканируйте QR-код</p>
     <img src="https://i.ibb.co/spzBQ6bn/BDZWPg.png" alt="QR-код для загрузки фото">
-    <p>Чтобы открыть бота в Telegram </p>
+    <p>Чтобы открыть бота в Telegram</p>
   </div>
 </div>
 
 <script>
-const photos = [
-  { id:1,  cat:'architecture', label:'Архитектура',    caption:'Старые своды',          src:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80' },
-  { id:2,  cat:'architecture', label:'Архитектура',    caption:'Фасад XIX века',         src:'https://images.unsplash.com/photo-1601600576337-c1d8a0d1373c?w=800&q=80' },
-  { id:3,  cat:'architecture', label:'Архитектура',    caption:'Колоннада',              src:'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&q=80' },
-  { id:4,  cat:'architecture', label:'Архитектура',    caption:'Modernism',              src:'https://images.unsplash.com/photo-1510454972008-2aab492c01bd?w=800&q=80' },
-  { id:5,  cat:'roads',        label:'Дороги',         caption:'Ночное шоссе',           src:'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80' },
-  { id:6,  cat:'roads',        label:'Дороги',         caption:'Брусчатка',              src:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80' },
-  { id:7,  cat:'roads',        label:'Дороги',         caption:'Перекрёсток',            src:'https://images.unsplash.com/photo-1490696275944-6eb4ff094f3d?w=800&q=80' },
-  { id:8,  cat:'transport',    label:'Транспорт',      caption:'Трамвай',                src:'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80' },
-  { id:9,  cat:'transport',    label:'Транспорт',      caption:'Метро',                  src:'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80' },
-  { id:10, cat:'transport',    label:'Транспорт',      caption:'Велосипеды у стены',     src:'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80' },
-  { id:11, cat:'courtyards',   label:'Дворы / Парадные', caption:'Тихий двор',           src:'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80' },
-  { id:12, cat:'courtyards',   label:'Дворы / Парадные', caption:'Лестница',             src:'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&q=80' },
-  { id:13, cat:'courtyards',   label:'Дворы / Парадные', caption:'Арка',                 src:'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80' },
-  { id:14, cat:'people',       label:'Люди на улицах', caption:'Прохожие',               src:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80' },
-  { id:15, cat:'people',       label:'Люди на улицах', caption:'Уличная сцена',          src:'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80' },
-  { id:16, cat:'people',       label:'Люди на улицах', caption:'Рынок',                  src:'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&q=80' },
-  { id:17, cat:'signs',        label:'Вывески и детали', caption:'Неон',                 src:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
-  { id:18, cat:'signs',        label:'Вывески и детали', caption:'Детали фасада',        src:'https://images.unsplash.com/photo-1541232222265-43a64bba10c4?w=800&q=80' },
-  { id:19, cat:'signs',        label:'Вывески и детали', caption:'Старая вывеска',       src:'https://images.unsplash.com/photo-1570989827083-62e8e24ea08a?w=800&q=80' },
-  { id:20, cat:'mountains',    label:'Горы',           caption:'Вершина',                src:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80' },
-  { id:21, cat:'mountains',    label:'Горы',           caption:'Туман в горах',          src:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80' },
-  { id:22, cat:'mountains',    label:'Горы',           caption:'Горная дорога',          src:'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80' },
-  { id:23, cat:'water',        label:'Водоёмы',        caption:'Отражение',              src:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80' },
-  { id:24, cat:'water',        label:'Водоёмы',        caption:'Река',                   src:'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80' },
-  { id:25, cat:'water',        label:'Водоёмы',        caption:'Озеро',                  src:'https://images.unsplash.com/photo-1439853949212-36db5d22c0e0?w=800&q=80' },
-  { id:26, cat:'water',        label:'Водоёмы',        caption:'Водопад',                src:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=800&q=80' },
-  { id:27, cat:'forest',       label:'Леса и поля',    caption:'Рассвет в лесу',         src:'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80' },
-  { id:28, cat:'forest',       label:'Леса и поля',    caption:'Поле пшеницы',           src:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80' },
-  { id:29, cat:'forest',       label:'Леса и поля',    caption:'Берёзовая роща',         src:'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80' },
-  { id:30, cat:'sunsets',      label:'Закаты и рассветы', caption:'Золотой час',         src:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80' },
-  { id:31, cat:'sunsets',      label:'Закаты и рассветы', caption:'Рассвет',             src:'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80' },
-  { id:32, cat:'sunsets',      label:'Закаты и рассветы', caption:'Вечернее небо',       src:'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=800&q=80' },
-  { id:33, cat:'animals',      label:'Животные',       caption:'Портрет',                src:'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=800&q=80' },
-  { id:34, cat:'animals',      label:'Животные',       caption:'Птица',                  src:'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800&q=80' },
-  { id:35, cat:'animals',      label:'Животные',       caption:'Дикая природа',          src:'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&q=80' },
-  { id:36, cat:'plants',       label:'Растения',       caption:'Макро',                  src:'https://images.unsplash.com/photo-1490750967868-88df5691cc89?w=800&q=80' },
-  { id:37, cat:'plants',       label:'Растения',       caption:'Роса',                   src:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80' },
-  { id:38, cat:'plants',       label:'Растения',       caption:'Цветение',               src:'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=800&q=80' },
-,
-  { id: 2615, cat: 'architecture', label: 'Архитектура', caption: 'Фото от @alyxdj', src: 'https://i.ibb.co/3941YSKz/file-2.jpg' },;
+// Пустой массив для фото — будут добавляться только через бота
+const photos = [];
 
 const ROTATIONS = [-2.4, -1.2, 0.6, 1.8, -0.8, 2.1, -1.6, 0.4, -2.0, 1.4];
 
@@ -651,7 +604,6 @@ document.addEventListener('keydown', e => {
 
 buildGrid();
 
-// Модальное окно для QR-кода
 const modal = document.getElementById('qrModal');
 const showBtn = document.getElementById('showQrBtn');
 const closeBtn = document.getElementById('closeModalBtn');
