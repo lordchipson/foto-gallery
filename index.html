@@ -143,12 +143,10 @@
     border-radius: 12px;
     text-align: center;
     border: 1px solid var(--accent);
-    max-width: 500px;
+    max-width: 400px;
     width: 90%;
     position: relative;
     animation: fadeIn .3s ease;
-    max-height: 80vh;
-    overflow-y: auto;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
@@ -193,40 +191,6 @@
   }
   .close-modal:hover {
     color: var(--accent);
-  }
-
-  /* Админ-панель таблица */
-  .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  .admin-table th, .admin-table td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-  }
-  .admin-table th {
-    color: var(--accent);
-  }
-  .delete-photo-btn {
-    background: #8b3a3a;
-    border: none;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.75rem;
-  }
-  .delete-photo-btn:hover {
-    background: #c44;
-  }
-  .admin-photo-preview {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
   }
 
   .hero {
@@ -387,6 +351,19 @@
     color: rgba(255,255,255,.85);
     font-size: .65rem;
     letter-spacing: .05em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .photo-number {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+    color: var(--accent);
+    font-size: .7rem;
+    font-weight: bold;
     padding: 3px 8px;
     border-radius: 2px;
     pointer-events: none;
@@ -614,16 +591,6 @@
   </div>
 </div>
 
-<!-- Админ-панель (скрытая) -->
-<div class="modal-overlay" id="adminModal">
-  <div class="modal-window">
-    <button class="close-modal" id="closeAdminModal">✕</button>
-    <h2>🔧 Админ-панель</h2>
-    <p>Управление фотографиями</p>
-    <div id="adminPhotosList">Загрузка...</div>
-  </div>
-</div>
-
 <script>
 let photos = [];
 let currentFilter = 'all';
@@ -641,15 +608,15 @@ const lbCap = document.getElementById('lbCaption');
 const lbAuthor = document.getElementById('lbAuthor');
 const saveBtn = document.getElementById('savePhotoBtn');
 
-// Проверка админ-доступа по секретному пути
-if (window.location.hash === '#jopagelisex') {
-  localStorage.setItem('adminAccess', 'true');
-  window.location.hash = '';
+// Сортируем фото по id для правильной нумерации
+function sortPhotosById(a, b) {
+  return a.id - b.id;
 }
 
 function renderAll() {
   grid.innerHTML = '';
-  photos.forEach((photo, idx) => {
+  const sortedPhotos = [...photos].sort(sortPhotosById);
+  sortedPhotos.forEach((photo, idx) => {
     const rot = ROTATIONS[idx % ROTATIONS.length];
     const wrap = document.createElement('div');
     wrap.className = 'polaroid-wrap';
@@ -660,6 +627,7 @@ function renderAll() {
         <img src="${photo.src}" alt="${photo.caption}" loading="lazy">
         <div class="polaroid-caption">${photo.caption || photo.author || 'Без подписи'}</div>
         <div class="author">📷 ${photo.author || 'Аноним'}</div>
+        <div class="photo-number">#${idx + 1}</div>
       </div>`;
     wrap.querySelector('.polaroid').addEventListener('click', () => {
       const vis = getVisiblePhotos();
@@ -696,11 +664,6 @@ async function loadPhotos() {
   }
   renderAll();
   applyFilter();
-  
-  // Если есть админ-доступ, загружаем фото в админку
-  if (localStorage.getItem('adminAccess') === 'true') {
-    showAdminPanel();
-  }
 }
 
 function openLightbox(idx) {
@@ -787,83 +750,6 @@ function showModal(modalId) {
 function hideModal(modalId) {
   document.getElementById(modalId).classList.remove('open');
 }
-
-// Админ-панель
-async function showAdminPanel() {
-  const container = document.getElementById('adminPhotosList');
-  if (!container) return;
-  
-  try {
-    const response = await fetch('photos.json');
-    const allPhotos = await response.json();
-    
-    if (allPhotos.length === 0) {
-      container.innerHTML = '<p>Нет фотографий</p>';
-    } else {
-      let html = '<table class="admin-table"><tr><th>ID</th><th>Превью</th><th>Автор</th><th>Категория</th><th>Действие</th></tr>';
-      allPhotos.forEach(photo => {
-        html += `
-          <tr>
-            <td>${photo.id}</td>
-            <td><img src="${photo.src}" class="admin-photo-preview" onerror="this.style.display=\'none\'"></td>
-            <td>${photo.author || 'Аноним'}</td>
-            <td>${photo.label || photo.cat}</td>
-            <td><button class="delete-photo-btn" data-id="${photo.id}">🗑 Удалить</button></td>
-          </tr>
-        `;
-      });
-      html += '</table>';
-      container.innerHTML = html;
-      
-      // Добавляем обработчики удаления
-      document.querySelectorAll('.delete-photo-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const id = parseInt(btn.dataset.id);
-          if (confirm(`Удалить фото #${id}?`)) {
-            await deletePhoto(id);
-          }
-        });
-      });
-    }
-    showModal('adminModal');
-  } catch (error) {
-    container.innerHTML = '<p>Ошибка загрузки</p>';
-  }
-}
-
-async function deletePhoto(id) {
-  try {
-    const response = await fetch('https://api.github.com/repos/lordchipson/foto-gallery/contents/photos.json', {
-      headers: { 'Accept': 'application/vnd.github.v3+json' }
-    });
-    const data = await response.json();
-    const content = atob(data.content);
-    let allPhotos = JSON.parse(content);
-    const newPhotos = allPhotos.filter(p => p.id !== id);
-    
-    if (newPhotos.length === allPhotos.length) {
-      alert('Фото не найдено');
-      return;
-    }
-    
-    // Сохраняем через GitHub API (нужен токен, но в админке он не сохранён)
-    alert('Для удаления через админ-панель нужен GitHub токен. Пока используй ручное удаление через photos.json');
-    
-  } catch (error) {
-    console.error(error);
-    alert('Ошибка удаления. Пока удаляй фото вручную через photos.json на GitHub');
-  }
-}
-
-// Показываем админку если есть доступ
-if (localStorage.getItem('adminAccess') === 'true') {
-  setTimeout(() => {
-    showAdminPanel();
-  }, 500);
-}
-
-// Закрытие админки
-document.getElementById('closeAdminModal')?.addEventListener('click', () => hideModal('adminModal'));
 
 if (!localStorage.getItem('welcomeSeen')) {
   setTimeout(() => showModal('welcomeModal'), 300);
