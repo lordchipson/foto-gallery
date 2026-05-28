@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>КАДР — Фотогалерея</title>
+<title>РеалКадр — галерея реальных фотографий</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -101,7 +101,27 @@
     color: #111;
   }
 
-  .modal {
+  footer {
+    text-align: center;
+    padding: 40px clamp(16px, 4vw, 56px) 30px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .footer-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
+    font-size: .8rem;
+    letter-spacing: .1em;
+    cursor: pointer;
+    transition: color .2s;
+  }
+  .footer-btn:hover {
+    color: var(--accent);
+  }
+
+  .modal-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -114,28 +134,50 @@
     align-items: center;
     justify-content: center;
   }
-  .modal.open {
+  .modal-overlay.open {
     display: flex;
   }
-  .modal-content {
+  .modal-window {
     background: var(--surface);
     padding: 30px;
     border-radius: 12px;
     text-align: center;
     border: 1px solid var(--accent);
-    max-width: 300px;
+    max-width: 400px;
     width: 90%;
     position: relative;
+    animation: fadeIn .3s ease;
   }
-  .modal-content p {
-    margin-bottom: 15px;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-window p {
+    margin: 20px 0;
     color: var(--text);
     font-size: 1rem;
+    line-height: 1.5;
   }
-  .modal-content img {
-    width: 200px;
-    height: auto;
-    margin-bottom: 15px;
+  .modal-window h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .modal-window button {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    padding: 8px 20px;
+    margin: 10px;
+    border-radius: 2px;
+    color: var(--accent);
+    font-family: 'Jost', sans-serif;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .modal-window button:hover {
+    background: var(--accent);
+    color: #111;
   }
   .close-modal {
     position: absolute;
@@ -176,11 +218,9 @@
   .filter-section {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 0;
   }
-
   .filter-group {
     margin-bottom: 14px;
   }
-
   .filter-group-label {
     font-size: .65rem;
     letter-spacing: .3em;
@@ -197,13 +237,11 @@
     height: 1px;
     background: var(--border);
   }
-
   .filter-pills {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
   }
-
   .pill {
     padding: 5px 14px;
     border-radius: 2px;
@@ -227,9 +265,6 @@
     border-color: var(--accent);
     color: var(--accent);
   }
-  .pill.all-pill {
-    border-color: rgba(255,255,255,0.15);
-  }
   .pill.all-pill.active {
     background: var(--accent);
     color: #111;
@@ -238,7 +273,6 @@
   .gallery-wrap {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 56px) 60px;
   }
-
   .count-bar {
     font-size: .72rem;
     letter-spacing: .2em;
@@ -250,41 +284,34 @@
     color: var(--accent);
     font-weight: 500;
   }
-
   .grid {
     columns: 3 280px;
     column-gap: 24px;
   }
-
   .polaroid-wrap {
     break-inside: avoid;
     margin-bottom: 24px;
     display: inline-block;
     width: 100%;
   }
-
+  .polaroid-wrap.hidden {
+    display: none;
+  }
   .polaroid {
     background: var(--polaroid-bg);
     padding: 10px 10px 36px;
-    box-shadow:
-      0 4px 8px rgba(0,0,0,.5),
-      0 12px 32px rgba(0,0,0,.45),
-      0 1px 2px rgba(255,255,255,.04) inset;
+    box-shadow: 0 4px 8px rgba(0,0,0,.5), 0 12px 32px rgba(0,0,0,.45), 0 1px 2px rgba(255,255,255,.04) inset;
     cursor: pointer;
     transition: transform .3s cubic-bezier(.22,.68,0,1.2), box-shadow .3s ease;
     will-change: transform;
     position: relative;
   }
-
   .polaroid { transform: rotate(var(--rot, 0deg)); }
   .polaroid:hover {
     transform: rotate(0deg) scale(1.03);
-    box-shadow:
-      0 8px 20px rgba(0,0,0,.6),
-      0 24px 56px rgba(0,0,0,.5);
+    box-shadow: 0 8px 20px rgba(0,0,0,.6), 0 24px 56px rgba(0,0,0,.5);
     z-index: 2;
   }
-
   .polaroid img {
     width: 100%;
     display: block;
@@ -292,7 +319,6 @@
     object-fit: cover;
     filter: sepia(8%) contrast(1.04);
   }
-
   .polaroid-caption {
     margin-top: 8px;
     font-family: 'Playfair Display', serif;
@@ -302,7 +328,6 @@
     text-align: center;
     letter-spacing: .03em;
   }
-
   .badge {
     position: absolute;
     top: 14px;
@@ -317,9 +342,18 @@
     border-radius: 2px;
     pointer-events: none;
   }
-
-  .polaroid-wrap.hidden {
-    display: none;
+  .author {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+    color: rgba(255,255,255,.85);
+    font-size: .65rem;
+    letter-spacing: .05em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    pointer-events: none;
   }
 
   .lightbox {
@@ -336,37 +370,23 @@
   }
   .lightbox.open {
     display: flex;
-    animation: lbIn .25s ease;
   }
-  @keyframes lbIn {
-    from { opacity:0; }
-    to { opacity:1; }
-  }
-
   .lightbox-inner {
     position: relative;
     max-width: min(90vw, 1000px);
     cursor: default;
-    animation: lbSlide .3s cubic-bezier(.22,.68,0,1.1);
   }
-  @keyframes lbSlide {
-    from { transform: scale(.9) translateY(20px); opacity:0; }
-    to   { transform: scale(1) translateY(0);     opacity:1; }
-  }
-
   .lightbox-polaroid {
     background: var(--polaroid-bg);
     padding: 12px 12px 52px;
     box-shadow: 0 24px 80px rgba(0,0,0,.9);
   }
-
   .lightbox-polaroid img {
     width: 100%;
     display: block;
     max-height: 70vh;
     object-fit: contain;
   }
-
   .lightbox-polaroid .lb-caption {
     text-align: center;
     margin-top: 12px;
@@ -375,7 +395,12 @@
     font-size: 1rem;
     color: #444;
   }
-
+  .lightbox-polaroid .lb-author {
+    text-align: center;
+    margin-top: 6px;
+    font-size: .8rem;
+    color: #777;
+  }
   .lightbox-close {
     position: absolute;
     top: -40px;
@@ -389,7 +414,6 @@
     line-height: 1;
   }
   .lightbox-close:hover { color: var(--text); }
-
   .lb-nav {
     position: absolute;
     top: 50%;
@@ -401,13 +425,14 @@
     width: 42px; height: 42px;
     border-radius: 50%;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: background .2s;
   }
   .lb-nav:hover { background: rgba(255,255,255,.18); }
   .lb-prev { left: -56px; }
   .lb-next { right: -56px; }
-
   .empty {
     display: none;
     grid-column: 1/-1;
@@ -417,6 +442,25 @@
   }
   .empty.show { display: block; }
   .empty .icon { font-size: 3rem; margin-bottom: 12px; opacity:.3; }
+
+  .save-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 10;
+  }
+  .save-btn:hover {
+    background: var(--accent);
+    color: #111;
+  }
 
   @media (max-width: 680px) {
     .grid { columns: 2 160px; column-gap: 14px; }
@@ -455,7 +499,6 @@
   <div class="filter-pills" style="margin-bottom:18px">
     <button class="pill all-pill active" data-filter="all">Все фото</button>
   </div>
-
   <div class="filter-group">
     <div class="filter-group-label">Город</div>
     <div class="filter-pills">
@@ -467,7 +510,6 @@
       <button class="pill" data-filter="signs">Вывески и детали</button>
     </div>
   </div>
-
   <div class="filter-group">
     <div class="filter-group-label">Природа</div>
     <div class="filter-pills">
@@ -490,6 +532,10 @@
   </div>
 </div>
 
+<footer>
+  <button class="footer-btn" id="aboutProjectBtn">📖 О ПРОЕКТЕ</button>
+</footer>
+
 <div class="lightbox" id="lightbox">
   <div class="lightbox-inner">
     <button class="lightbox-close" id="lbClose">✕</button>
@@ -498,16 +544,37 @@
     <div class="lightbox-polaroid">
       <img id="lbImg" src="" alt="">
       <div class="lb-caption" id="lbCaption"></div>
+      <div class="lb-author" id="lbAuthor"></div>
+      <button class="save-btn" id="savePhotoBtn">💾 Сохранить</button>
     </div>
   </div>
 </div>
 
-<div class="modal" id="qrModal">
-  <div class="modal-content">
-    <button class="close-modal" id="closeModalBtn">✕</button>
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-window">
+    <button class="close-modal" id="closeQrModal">✕</button>
     <p>📱 Отсканируйте QR-код</p>
-    <img src="https://i.ibb.co/spzBQ6bn/BDZWPg.png" alt="QR-код для загрузки фото">
+    <img src="https://i.ibb.co/spzBQ6bn/BDZWPg.png" alt="QR-код для загрузки фото" style="width:180px; margin:10px auto;">
     <p>Чтобы открыть бота в Telegram</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal-window">
+    <h2>📸 РеалКадр</h2>
+    <p>Открытая галерея реальных фотографий. Город, природа, люди — без фильтров и постановок.</p>
+    <button id="enterGalleryBtn">Посетить галерею</button>
+    <button id="aboutFromWelcomeBtn">О проекте</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-window">
+    <button class="close-modal" id="closeAboutModal">✕</button>
+    <h2>📖 О проекте</h2>
+    <p>Здесь будет текст о проекте. Вы можете его заменить.</p>
+    <p>РеалКадр — место, где собираются настоящие снимки от реальных людей.</p>
+    <button id="closeAboutBtn">Закрыть</button>
   </div>
 </div>
 
@@ -525,39 +592,59 @@ const emptyEl = document.getElementById('empty');
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lbImg');
 const lbCap = document.getElementById('lbCaption');
+const lbAuthor = document.getElementById('lbAuthor');
+const saveBtn = document.getElementById('savePhotoBtn');
 
-function buildGrid() {
+function renderAll() {
   grid.innerHTML = '';
-  visiblePhotos = currentFilter === 'all' ? photos : photos.filter(p => p.cat === currentFilter);
-
-  countEl.textContent = visiblePhotos.length;
-  emptyEl.classList.toggle('show', visiblePhotos.length === 0);
-
-  visiblePhotos.forEach((photo, idx) => {
+  photos.forEach((photo, idx) => {
     const rot = ROTATIONS[idx % ROTATIONS.length];
     const wrap = document.createElement('div');
     wrap.className = 'polaroid-wrap';
-
+    wrap.dataset.cat = photo.cat;
     wrap.innerHTML = `
-      <div class="polaroid" style="--rot:${rot}deg" data-index="${idx}">
+      <div class="polaroid" style="--rot:${rot}deg">
         <span class="badge">${photo.label}</span>
         <img src="${photo.src}" alt="${photo.caption}" loading="lazy">
-        <div class="polaroid-caption">${photo.caption}</div>
+        <div class="polaroid-caption">${photo.caption || photo.author || 'Без подписи'}</div>
+        <div class="author">📷 ${photo.author || 'Аноним'}</div>
       </div>`;
-
-    wrap.querySelector('.polaroid').addEventListener('click', () => openLightbox(idx));
+    wrap.querySelector('.polaroid').addEventListener('click', () => {
+      const vis = getVisiblePhotos();
+      openLightbox(vis.indexOf(photo));
+    });
     grid.appendChild(wrap);
   });
 }
 
-document.querySelectorAll('.pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    buildGrid();
+function applyFilter() {
+  const all = grid.querySelectorAll('.polaroid-wrap');
+  all.forEach(w => {
+    const show = currentFilter === 'all' || w.dataset.cat === currentFilter;
+    w.classList.toggle('hidden', !show);
   });
-});
+  const vis = getVisiblePhotos();
+  countEl.textContent = vis.length;
+  emptyEl.classList.toggle('show', vis.length === 0);
+  visiblePhotos = vis;
+}
+
+function getVisiblePhotos() {
+  return photos.filter(p => currentFilter === 'all' || p.cat === currentFilter);
+}
+
+async function loadPhotos() {
+  try {
+    const response = await fetch('photos.json');
+    if (!response.ok) throw new Error('not found');
+    photos = await response.json();
+  } catch (error) {
+    console.warn('photos.json не найден, галерея пуста');
+    photos = [];
+  }
+  renderAll();
+  applyFilter();
+}
 
 function openLightbox(idx) {
   lbIndex = idx;
@@ -573,64 +660,105 @@ function closeLightbox() {
 
 function updateLightbox() {
   const p = visiblePhotos[lbIndex];
-  lbImg.src = p.src;
-  lbCap.textContent = p.caption;
+  if (p) {
+    lbImg.src = p.src;
+    lbCap.textContent = p.caption || 'Без подписи';
+    lbAuthor.textContent = `📷 ${p.author || 'Аноним'}`;
+  }
 }
+
+function downloadPhoto(url, filename) {
+  fetch(url)
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      link.href = objectUrl;
+      link.download = filename || 'photo.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    })
+    .catch(err => console.error('Ошибка сохранения:', err));
+}
+
+saveBtn.addEventListener('click', () => {
+  const p = visiblePhotos[lbIndex];
+  if (p && p.src) {
+    downloadPhoto(p.src, `realcadr_${p.id}.jpg`);
+  }
+});
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-
 document.getElementById('lbPrev').addEventListener('click', e => {
   e.stopPropagation();
   lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length;
   updateLightbox();
 });
-
 document.getElementById('lbNext').addEventListener('click', e => {
   e.stopPropagation();
   lbIndex = (lbIndex + 1) % visiblePhotos.length;
   updateLightbox();
 });
-
 document.addEventListener('keydown', e => {
   if (!lightbox.classList.contains('open')) return;
   if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowLeft') { lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length; updateLightbox(); }
-  if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % visiblePhotos.length; updateLightbox(); }
+  if (e.key === 'ArrowLeft') {
+    lbIndex = (lbIndex - 1 + visiblePhotos.length) % visiblePhotos.length;
+    updateLightbox();
+  }
+  if (e.key === 'ArrowRight') {
+    lbIndex = (lbIndex + 1) % visiblePhotos.length;
+    updateLightbox();
+  }
 });
 
-// Загружаем фото из photos.json
-async function loadPhotos() {
-  try {
-    const response = await fetch('photos.json');
-    photos = await response.json();
-    buildGrid();
-  } catch (error) {
-    console.error('Ошибка загрузки фото:', error);
-    photos = [];
-    buildGrid();
-  }
+document.querySelectorAll('.pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    applyFilter();
+  });
+});
+
+function showModal(modalId) {
+  document.getElementById(modalId).classList.add('open');
+}
+function hideModal(modalId) {
+  document.getElementById(modalId).classList.remove('open');
 }
 
+if (!localStorage.getItem('welcomeSeen')) {
+  setTimeout(() => showModal('welcomeModal'), 300);
+}
+
+document.getElementById('enterGalleryBtn')?.addEventListener('click', () => {
+  localStorage.setItem('welcomeSeen', 'true');
+  hideModal('welcomeModal');
+});
+document.getElementById('aboutFromWelcomeBtn')?.addEventListener('click', () => {
+  hideModal('welcomeModal');
+  showModal('aboutModal');
+});
+document.getElementById('aboutProjectBtn')?.addEventListener('click', () => showModal('aboutModal'));
+document.getElementById('closeAboutModal')?.addEventListener('click', () => hideModal('aboutModal'));
+document.getElementById('closeAboutBtn')?.addEventListener('click', () => hideModal('aboutModal'));
+
+const qrModal = document.getElementById('qrModal');
+const showQrBtn = document.getElementById('showQrBtn');
+showQrBtn?.addEventListener('click', () => showModal('qrModal'));
+document.getElementById('closeQrModal')?.addEventListener('click', () => hideModal('qrModal'));
+qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) hideModal('qrModal'); });
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+});
+
 loadPhotos();
-
-const modal = document.getElementById('qrModal');
-const showBtn = document.getElementById('showQrBtn');
-const closeBtn = document.getElementById('closeModalBtn');
-
-showBtn.addEventListener('click', () => {
-  modal.classList.add('open');
-});
-
-closeBtn.addEventListener('click', () => {
-  modal.classList.remove('open');
-});
-
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) {
-    modal.classList.remove('open');
-  }
-});
 </script>
 </body>
 </html>
